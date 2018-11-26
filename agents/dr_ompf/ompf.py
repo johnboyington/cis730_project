@@ -11,7 +11,10 @@ class TerranAgent(base_agent.BaseAgent):
         super(TerranAgent, self).__init__()
         self.friendly_unit_list = []
         self.unit_index = 0
-        self.action_step = 'SELECT'
+        self.action_step = 'DESELECT'
+        
+        # hardcoded parameters for defeatroaches scenario
+        self.enemy_range = 4
 
     def unit_type_is_selected(self, obs, unit_type):
         if (len(obs.observation.single_select) > 0 and obs.observation.single_select[0].unit_type == unit_type):
@@ -28,19 +31,60 @@ class TerranAgent(base_agent.BaseAgent):
     
     def can_do(self, obs, action):
         return action in obs.observation.available_actions
-
     
-    def calc_target_priority_queue(self, available_targets):
-        """Returns ordered list of priority targets."""
+    def deselect_all_units(self, obs):
+        """Utility that deselects all units."""
+        if self.unit_type_is_selected(obs, units.Terran.Marine):
+            for unit in obs.observation.feature_units:
+                if unit.is_selected:
+                    return actions.FUNCTIONS.select_point("toggle", (unit.x, unit.y))
+        else:
+            self.action_step = 'SELECT'
+            return actions.FUNCTIONS.no_op()
+    
+    def select_next_marine(self, marines):
+        """Utility that selects the next marine in the queue."""
+        self.unit_index += 1
+        if self.unit_index >= len(marines):
+            self.unit_index = 0
+        unit = marines[self.unit_index]
+        self.action_step = 'ACT'
+        return actions.FUNCTIONS.select_point("select", (unit.x, unit.y))
+    
+    def act(self, obs):
+        """Act."""
+        # change action step
+        self.action_step = 'DESELECT'
         
+        # get additional inferred data
+        self.inferred_observations(obs)
+        
+        # find the best position
+        best_position = self.calc_best_position()
+        
+        # move to best position if possible
+        if self.can_do(obs, actions.FUNCTIONS.Move_screen.id):
+            return actions.FUNCTIONS.Move_screen("now", best_position)
+        else:
+            return actions.FUNCTIONS.no_op()
+    
+    def inferred_observations(self, obs):
+        """Calculates information inferred from observation data."""
+        
+        self.available_targets = self.get_units_by_type(obs, units.Zerg.Roach)
         # calc center of mass of targets
         xx = 0
         yy = 0
-        for target in available_targets:
+        for target in self.available_targets:
             xx += target.x
             yy += target.y
-        self.enemy_xcom = xx / len(available_targets)
-        self.enemy_ycom = yy / len(available_targets)
+        self.enemy_xcom = xx / len(self.available_targets)
+        self.enemy_ycom = yy / len(self.available_targets)
+        return
+        
+    
+    def calc_target_priority_queue(self, available_targets):
+        """Returns ordered list of priority targets."""
         
         # the following function helps sort targets
         def priority_function(target):
@@ -57,15 +101,23 @@ class TerranAgent(base_agent.BaseAgent):
         """Calculates a list of best move locations."""
         
         # calc x and y positions
-        ord_lim = 10
-        xx = np.linspace(self.enemy_xcom - ord_lim, self.enemy_xcom + ord_lim, 100)
-        yy = np.linspace(self.enemy_ycom - ord_lim, self.enemy_ycom + ord_lim, 100)
+        ord_lim = 20
+        xx = np.linspace(self.enemy_xcom - ord_lim, self.enemy_xcom + ord_lim, 40)
+        yy = np.linspace(self.enemy_ycom - ord_lim, self.enemy_ycom + ord_lim, 40)
         
         # loop through each point
         points = []
         for x in xx:
             for y in yy:
-                score = 1
+                # calculate the score here
+                # first calc number of enemies that can fire on square
+                N_E = 0
+                for enemy in self.available_targets:
+                    if np.sqrt((x - enemy.x)**2 + (y - enemy.y)**2) < self.enemy_range:
+                        N_E += 1 
+                
+                # calculate score
+                score = N_E
                 points.append(((x, y), score))
                 
         # return the points sorted by score
@@ -75,71 +127,19 @@ class TerranAgent(base_agent.BaseAgent):
     def step(self, obs):
         super(TerranAgent, self).step(obs)
         
-        # initialize friendly unit list
-        if not self.friendly_unit_list:
-            self.friendly_unit_list = self.get_units_by_type(obs, units.Terran.Marine)
-            for unit in self.friendly_unit_list:
-                print(unit)
-            self.unit_index = 0
-            if self.unit_type_is_selected(obs, units.Terran.Marine):
-                self.action_step = 'SELECT'
-                print('ISSUE IS HERE-------------------------------------')
-                return actions.FUNCTIONS.select_unit("deselect_all_type", self.friendly_unit_list[self.unit_index].x, self.friendly_unit_list[self.unit_index].y)
-            else:
-                pass
-        else:
-            if len(self.friendly_unit_list) != self.get_units_by_type(obs, units.Terran.Marine):
-                self.friendly_unit_list = self.get_units_by_type(obs, units.Terran.Marine)
-                self.unit_index = 0
-                marines = self.get_units_by_type(obs, units.Terran.Marine)
-                if marines and self.unit_type_is_selected(obs, units.Terran.Marine):
-                    self.action_step = 'SELECT'
-                    return actions.FUNCTIONS.select_unit("deselect", (marines[0].x, marines[0].y))
-                else:
-                    pass
-            else:
-                pass
+        # deselect something
+        marines = self.get_units_by_type(obs, units.Terran.Marine)
         
+        # deselect everyone
+        if self.action_step == 'DESELECT':
+            return self.deselect_all_units(obs)
         
         if self.action_step == 'SELECT':
-            # grab one marine
-            if not self.unit_type_is_selected(obs, units.Terran.Marine):
-                marines = self.get_units_by_type(obs, units.Terran.Marine)
-                if marines:
-                    self.action_step = 'ACT'
-                    return actions.FUNCTIONS.select_unit("select", (marines[0].x, marines[0].y))
-                else:
-                    pass
+            return self.select_next_marine(marines)
         
-        elif self.action_step == 'ACT':
-            # get target priority queue
-            roaches = self.get_units_by_type(obs, units.Zerg.Roach)
-            target_priority_queue = self.calc_target_priority_queue(roaches)
-            
-            # can agent attack any of these priority targets?
-            if self.can_do(obs, actions.FUNCTIONS.Attack_screen.id):
-                for target in target_priority_queue:
-                    self.action_step = 'DESELECT'
-                    return actions.FUNCTIONS.Attack_screen("now", (target.x, target.y))
-            
-            # calculate movement locations
-            best_position = self.calc_best_position()
-            print(best_position)
-            
-            # if possible, move to an optimal location
-            if self.can_do(obs, actions.FUNCTIONS.Move_screen.id):
-                self.action_step = 'DESELECT'
-                return actions.FUNCTIONS.Move_screen("now", best_position)
+        if self.action_step == 'ACT':
+            return self.act(obs)
         
-        elif self.action_step == 'DESELECT':
-            # let go of marine selection
-            if self.unit_type_is_selected(obs, units.Terran.Marine):
-                marines = self.get_units_by_type(obs, units.Terran.Marine)
-                if marines:
-                    self.action_step = 'SELECT'
-                    return actions.FUNCTIONS.select_unit("deselect_all_type", (marines[0].x, marines[0].y))
-                else:
-                    pass
         
         return actions.FUNCTIONS.no_op()
 
