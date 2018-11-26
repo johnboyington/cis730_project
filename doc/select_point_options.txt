@@ -1,0 +1,6 @@
+SELECT_POINT_ACT_OPTIONS = [
+    ("select", sc_spatial.ActionSpatialUnitSelectionPoint.Select),
+    ("toggle", sc_spatial.ActionSpatialUnitSelectionPoint.Toggle),
+    ("select_all_type", sc_spatial.ActionSpatialUnitSelectionPoint.AllType),
+    ("add_all_type", sc_spatial.ActionSpatialUnitSelectionPoint.AddAllType),
+]
