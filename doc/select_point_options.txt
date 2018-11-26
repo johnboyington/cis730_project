@@ -1,6 +1,50 @@
+QUEUED_OPTIONS = [
+    ("now", False),
+    ("queued", True),
+]
+Queued = _define_position_based_enum(  # pylint: disable=invalid-name
+    "Queued", QUEUED_OPTIONS)
+
+CONTROL_GROUP_ACT_OPTIONS = [
+    ("recall", sc_ui.ActionControlGroup.Recall),
+    ("set", sc_ui.ActionControlGroup.Set),
+    ("append", sc_ui.ActionControlGroup.Append),
+    ("set_and_steal", sc_ui.ActionControlGroup.SetAndSteal),
+    ("append_and_steal", sc_ui.ActionControlGroup.AppendAndSteal),
+]
+ControlGroupAct = _define_position_based_enum(  # pylint: disable=invalid-name
+    "ControlGroupAct", CONTROL_GROUP_ACT_OPTIONS)
+
 SELECT_POINT_ACT_OPTIONS = [
     ("select", sc_spatial.ActionSpatialUnitSelectionPoint.Select),
     ("toggle", sc_spatial.ActionSpatialUnitSelectionPoint.Toggle),
     ("select_all_type", sc_spatial.ActionSpatialUnitSelectionPoint.AllType),
     ("add_all_type", sc_spatial.ActionSpatialUnitSelectionPoint.AddAllType),
 ]
+SelectPointAct = _define_position_based_enum(  # pylint: disable=invalid-name
+    "SelectPointAct", SELECT_POINT_ACT_OPTIONS)
+
+SELECT_ADD_OPTIONS = [
+    ("select", False),
+    ("add", True),
+]
+SelectAdd = _define_position_based_enum(  # pylint: disable=invalid-name
+    "SelectAdd", SELECT_ADD_OPTIONS)
+
+SELECT_UNIT_ACT_OPTIONS = [
+    ("select", sc_ui.ActionMultiPanel.SingleSelect),
+    ("deselect", sc_ui.ActionMultiPanel.DeselectUnit),
+    ("select_all_type", sc_ui.ActionMultiPanel.SelectAllOfType),
+    ("deselect_all_type", sc_ui.ActionMultiPanel.DeselectAllOfType),
+]
+SelectUnitAct = _define_position_based_enum(  # pylint: disable=invalid-name
+    "SelectUnitAct", SELECT_UNIT_ACT_OPTIONS)
+
+SELECT_WORKER_OPTIONS = [
+    ("select", sc_ui.ActionSelectIdleWorker.Set),
+    ("add", sc_ui.ActionSelectIdleWorker.Add),
+    ("select_all", sc_ui.ActionSelectIdleWorker.All),
+    ("add_all", sc_ui.ActionSelectIdleWorker.AddAll),
+]
+SelectWorker = _define_position_based_enum(  # pylint: disable=invalid-name
+    "SelectWorker", SELECT_WORKER_OPTIONS)
