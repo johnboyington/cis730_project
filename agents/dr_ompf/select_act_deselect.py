@@ -51,7 +51,7 @@ class TerranAgent(base_agent.BaseAgent):
         return actions.FUNCTIONS.select_point("select", (unit.x, unit.y))
     
     def act(self, obs):
-        best_position = (randint(100), randint(100))
+        best_position = (120, 100)
         self.action_step = 'DESELECT'
         if self.can_do(obs, actions.FUNCTIONS.Move_screen.id):
             return actions.FUNCTIONS.Move_screen("now", best_position)

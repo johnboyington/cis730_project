@@ -15,6 +15,7 @@ class TerranAgent(base_agent.BaseAgent):
         
         # hardcoded parameters for defeatroaches scenario
         self.enemy_range = 4
+        self.friendly_range = 5
 
     def unit_type_is_selected(self, obs, unit_type):
         if (len(obs.observation.single_select) > 0 and obs.observation.single_select[0].unit_type == unit_type):
@@ -44,10 +45,11 @@ class TerranAgent(base_agent.BaseAgent):
     
     def select_next_marine(self, marines):
         """Utility that selects the next marine in the queue."""
-        self.unit_index += 1
         if self.unit_index >= len(marines):
             self.unit_index = 0
         unit = marines[self.unit_index]
+        self.current_unit = unit
+        self.unit_index += 1
         self.action_step = 'ACT'
         return actions.FUNCTIONS.select_point("select", (unit.x, unit.y))
     
@@ -59,8 +61,11 @@ class TerranAgent(base_agent.BaseAgent):
         # get additional inferred data
         self.inferred_observations(obs)
         
+        # get priority attack queue
+        target_priority_queue = self.calc_target_priority_queue(self.available_targets)
+        
         # find the best position
-        best_position = self.calc_best_position()
+        best_position = self.calc_best_position(target_priority_queue)
         
         # move to best position if possible
         if self.can_do(obs, actions.FUNCTIONS.Move_screen.id):
@@ -97,13 +102,16 @@ class TerranAgent(base_agent.BaseAgent):
         # sort targets based on priority
         return sorted(available_targets, key=priority_function)
     
-    def calc_best_position(self):
+    def calc_best_position(self, target_priority_queue):
         """Calculates a list of best move locations."""
         
         # calc x and y positions
-        ord_lim = 20
-        xx = np.linspace(self.enemy_xcom - ord_lim, self.enemy_xcom + ord_lim, 40)
-        yy = np.linspace(self.enemy_ycom - ord_lim, self.enemy_ycom + ord_lim, 40)
+        #ord_lim = 40
+        #xx = np.linspace(self.enemy_xcom - ord_lim, self.enemy_xcom + ord_lim, 80)
+        #yy = np.linspace(self.enemy_ycom - ord_lim, self.enemy_ycom + ord_lim, 80)
+        
+        xx = np.linspace(0, 120, 121)
+        yy = np.linspace(0, 100, 101)
         
         # loop through each point
         points = []
@@ -114,10 +122,27 @@ class TerranAgent(base_agent.BaseAgent):
                 N_E = 0
                 for enemy in self.available_targets:
                     if np.sqrt((x - enemy.x)**2 + (y - enemy.y)**2) < self.enemy_range:
-                        N_E += 1 
+                        N_E += 1
+                
+                # is the highest priority target in range?
+                hpt = target_priority_queue[0]
+                D_P = 0
+                if np.sqrt((x - hpt.x)**2 + (y - hpt.y)**2) < self.friendly_range:
+                    D_P = 1
+                
+                # distance from current position
+                D_C_POS = np.sqrt((x - self.current_unit.x)**2 + (y - self.current_unit.y)**2)
+                
                 
                 # calculate score
-                score = N_E
+                weights = np.array([1, -2, 0.0])
+                score_categories = np.array([N_E, D_P, D_C_POS])
+                score = np.sum(weights * score_categories)
+                
+                # if not in range, remove score from possible move options
+                if D_P == 0:
+                    score = 100
+                
                 points.append(((x, y), score))
                 
         # return the points sorted by score
