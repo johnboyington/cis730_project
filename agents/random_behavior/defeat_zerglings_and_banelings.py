@@ -23,14 +23,15 @@ def main(unused_argv):
                 agent.setup(env.observation_spec(), env.action_spec())
                 timesteps = env.reset()
                 agent.reset()
-                storage.log_step(timesteps, 0)
+                print(timesteps[0])
+                storage.log_step(timesteps[0], 0)
                 while True:
                     action, action_index = agent.step(timesteps[0])
                     step_actions = [action]
                     if timesteps[0].last():
                         break
                     timesteps = env.step(step_actions)
-                    storage.log_step(timesteps, action_index)
+                    storage.log_step(timesteps[0], action_index)
     except KeyboardInterrupt:
         pass
     
