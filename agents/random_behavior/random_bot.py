@@ -21,12 +21,12 @@ class TerranAgent(base_agent.BaseAgent):
         super(TerranAgent, self).step(obs)
         
         # establish some ground rules
-        action_space_size = 24442
-        x_space_size = 101
-        y_space_size = 121
+        x_space_size = 61
+        y_space_size = 81
+        action_space_size = x_space_size * y_space_size * 2
         
         # first, pick a random number to represent some action from the action space
-        rho = randint(x_space_size * y_space_size * 2)
+        rho = randint(action_space_size)
         
         
         # determine if action is attack (<1200) or move (>=1200)
@@ -37,8 +37,8 @@ class TerranAgent(base_agent.BaseAgent):
             rho -= (action_space_size / 2)
         
         # calc x and y from the random number
-        y = rho // x_space_size
-        x = rho % x_space_size
+        x = rho // x_space_size
+        y = rho % x_space_size
         target = (x, y)
         
         print(action, target)
