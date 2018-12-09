@@ -27,6 +27,7 @@ class TerranAgent(base_agent.BaseAgent):
         
         # first, pick a random number to represent some action from the action space
         rho = randint(action_space_size)
+        rho_stored = rho
         
         
         # determine if action is attack (<1200) or move (>=1200)
@@ -41,15 +42,13 @@ class TerranAgent(base_agent.BaseAgent):
         y = rho % x_space_size
         target = (x, y)
         
-        print(action, target)
-
         if action == 'attack':
             if self.can_do(obs, actions.FUNCTIONS.Attack_screen.id):
-                return actions.FUNCTIONS.Attack_screen("now", target)
+                return actions.FUNCTIONS.Attack_screen("now", target), rho_stored
         elif action == 'move':
             if self.can_do(obs, actions.FUNCTIONS.Move_screen.id):
-                return actions.FUNCTIONS.Move_screen("now", target)
+                return actions.FUNCTIONS.Move_screen("now", target), rho_stored
         
         
-        return actions.FUNCTIONS.no_op()
+        return actions.FUNCTIONS.no_op(), rho_stored
 

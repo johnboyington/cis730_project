@@ -5,10 +5,13 @@ from absl import app
 import numpy as np
 from numpy.random import randint
 from random_bot import TerranAgent
+from data import Data_Container
+import pickle
 
 
 def main(unused_argv):
     agent = TerranAgent()
+    storage = Data_Container()
     try:
         with sc2_env.SC2Env(
             map_name="DefeatZerglingsAndBanelings",
@@ -20,13 +23,22 @@ def main(unused_argv):
                 agent.setup(env.observation_spec(), env.action_spec())
                 timesteps = env.reset()
                 agent.reset()
+                storage.log_step(timesteps, 0)
                 while True:
-                    step_actions = [agent.step(timesteps[0])]
+                    action, action_index = agent.step(timesteps[0])
+                    step_actions = [action]
                     if timesteps[0].last():
                         break
                     timesteps = env.step(step_actions)
+                    storage.log_step(timesteps, action_index)
     except KeyboardInterrupt:
         pass
+    
+    # store data
+    with open('logged_data.p', 'wb+') as F:
+        pickle.dump(storage, F)
+    
+    return
   
 if __name__ == "__main__":
     app.run(main)
