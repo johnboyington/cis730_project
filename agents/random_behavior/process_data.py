@@ -12,4 +12,4 @@ def process_data(filename):
 
 
 if __name__ == '__main__':
-    process_data('logged_data.npy')
+    process_data('logged_data100.npy')

@@ -3,7 +3,6 @@ from pysc2.env import sc2_env
 from pysc2.lib import actions, features, units
 from absl import app
 import numpy as np
-from numpy.random import randint
 from random_bot import TerranAgent
 from data import Data_Container
 
@@ -35,14 +34,15 @@ def main(unused_argv):
                             break
                         timesteps = env.step(step_actions)
                         storage.log_step(timesteps[0], action_index)
-            
+
     except KeyboardInterrupt:
         pass
-    
+
     # store data
     storage.save_data('logged_data.npy')
 
     return
-  
+
+
 if __name__ == "__main__":
     app.run(main)
