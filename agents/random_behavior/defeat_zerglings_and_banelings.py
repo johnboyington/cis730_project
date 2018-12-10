@@ -36,9 +36,8 @@ def main(unused_argv):
         pass
     
     # store data
-    with open('logged_data.p', 'wb+') as F:
-        pickle.dump(storage, F)
-    
+    storage.save_data('logged_data.txt')
+
     return
   
 if __name__ == "__main__":

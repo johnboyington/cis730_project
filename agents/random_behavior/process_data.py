@@ -7,7 +7,10 @@ def process_data(filename):
     with open(filename, 'rb') as F:
         storage = pickle.load(F)
     
-    print(storage.actions)
+    
+    obs = storage.observations[0]
+    print(type(obs))
+    print(obs['single_select'])
     
 
 
