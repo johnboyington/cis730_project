@@ -1,18 +1,15 @@
-import pickle
+import numpy as np
 
 
 def process_data(filename):
     """A utility used to convert logged data into a form accepted by ANN software."""
     
-    with open(filename, 'rb') as F:
-        storage = pickle.load(F)
+    storage = np.load(filename)
+    scores = storage[:, -2]
     
     
-    obs = storage.observations[0]
-    print(type(obs))
-    print(obs['single_select'])
-    
+    print(len(scores[scores > 0]))
 
 
 if __name__ == '__main__':
-    process_data('logged_data.p')
+    process_data('logged_data.npy')

@@ -25,7 +25,7 @@ class Data_Container(object):
     def save_data(self, filename):
         """A utility to store the data in a human readable numpy array."""
         self.data = np.array(self.data)
-        np.savetxt(filename, self.data, delimiter=',', fmt='%d')
+        np.save(filename, self.data)
         return
                 
         
