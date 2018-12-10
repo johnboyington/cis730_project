@@ -14,9 +14,9 @@ class TerranAgent(base_agent.BaseAgent):
     def setup_model(self):
         """Build ANN."""
         self.model = tf.keras.Sequential()
-        self.model.add(layers.Dense(64, activation='relu'))
-        self.model.add(layers.Dense(64, activation='relu'))
-        self.model.add(layers.Dense(10, activation='softmax'))
+        self.model.add(layers.Dense(256, activation='relu'))
+        self.model.add(layers.Dense(124, activation='relu'))
+        self.model.add(layers.Dense(61*81*2, activation='softmax'))
         self.model.compile(optimizer=tf.train.AdamOptimizer(0.001), loss='categorical_crossentropy', metrics=['accuracy'])
         return
 
@@ -41,18 +41,18 @@ class TerranAgent(base_agent.BaseAgent):
         data, labels = self.process_data('logged_data100.npy')
 
         # fit the data to the model
-        self.model.fit(data, labels, epochs=10, batch_size=32)
+        self.model.fit(data, labels, epochs=1, batch_size=32)
 
     def predict_action(self, obs):
         """Returns an action number given an observation."""
         row = []
-        fs = obs.feature_screen
+        fs = obs.observation.feature_screen
 
         for screen in [fs.unit_hit_points, fs.unit_type]:
             row += list(screen.flatten())
 
-        data = np.array(row)
-        return self.model.predict(data)
+        data = np.array(row).reshape(-1, len(row))
+        return np.argmax(self.model.predict(data))
 
     def can_do(self, obs, action):
         """Checks if an action is in the list of available actions."""

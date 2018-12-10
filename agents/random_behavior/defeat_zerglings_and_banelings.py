@@ -3,14 +3,14 @@ from pysc2.env import sc2_env
 from pysc2.lib import actions, features, units
 from absl import app
 import numpy as np
-from random_bot import TerranAgent
+from trained_bot import TerranAgent
 from data import Data_Container
 
 
 def main(unused_argv):
     agent = TerranAgent()
     storage = Data_Container()
-    num_games = 100
+    num_games = 10
     try:
         for i in range(num_games):
             print('\n------------------------------------------------')
@@ -22,7 +22,7 @@ def main(unused_argv):
                 agent_interface_format=features.AgentInterfaceFormat(feature_dimensions=features.Dimensions(screen=84, minimap=64), use_feature_units=True),
                 step_mul=8,
                 game_steps_per_episode=0,
-                visualize=False) as env:
+                visualize=True) as env:
                     agent.setup(env.observation_spec(), env.action_spec())
                     timesteps = env.reset()
                     agent.reset()
