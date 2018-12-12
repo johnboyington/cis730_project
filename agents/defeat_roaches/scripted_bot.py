@@ -1,7 +1,6 @@
 from pysc2.agents import base_agent
-from pysc2.env import sc2_env
-from pysc2.lib import actions, features, units
-from absl import app
+from pysc2.lib import actions, units
+from transform_action import transform_action
 
 
 class TerranAgent(base_agent.BaseAgent):
@@ -23,28 +22,20 @@ class TerranAgent(base_agent.BaseAgent):
     def can_do(self, obs, action):
         return action in obs.observation.available_actions
 
-    def step(self, obs):
+    def step(self, obs, storage):
         super(TerranAgent, self).step(obs)
 
-        attacking = False
+        # get list of all visible roaches
+        roaches = self.get_units_by_type(obs, units.Zerg.Roach)
+        roaches = sorted(roaches, key=lambda x: (x.health, x.y))
+        target = roaches[0].x, roaches[0].y
 
-        # select all marines
-        if not self.unit_type_is_selected(obs, units.Terran.Marine):
-            marines = self.get_units_by_type(obs, units.Terran.Marine)
-            if marines:
-                return actions.FUNCTIONS.select_point("select_all_type", (marines[0].x, marines[0].y))
-            else:
-                pass
+        # determine a label for the action and log data
+        action_id = transform_action(target)
+        storage.log_step(obs, action_id)
 
-        elif not attacking:
-            # get list of all visible roaches
-            roaches = self.get_units_by_type(obs, units.Zerg.Roach)
-            roaches = sorted(roaches, key=lambda x: (x.health, x.y))
-            target = roaches[0]
-
-            # attack target with marines
-            if self.can_do(obs, actions.FUNCTIONS.Attack_screen.id):
-                attacking = True
-                return actions.FUNCTIONS.Attack_screen("now", (target.x, target.y))
+        # attack target with marines
+        if self.can_do(obs, actions.FUNCTIONS.Attack_screen.id):
+            return actions.FUNCTIONS.Attack_screen("now", target)
 
         return actions.FUNCTIONS.no_op()

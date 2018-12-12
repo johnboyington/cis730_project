@@ -1,11 +1,13 @@
 from pysc2.env import sc2_env
 from pysc2.lib import features
 from absl import app
-from scripted_bot import TerranAgent
+from learning_bot import TerranAgent
+from data import Data_Container
 
 
 def main(unused_argv):
     agent = TerranAgent()
+    storage = Data_Container()
     try:
         with sc2_env.SC2Env(
             map_name="DefeatRoaches",
@@ -18,7 +20,7 @@ def main(unused_argv):
                 timesteps = env.reset()
                 agent.reset()
                 while True:
-                    step_actions = [agent.step(timesteps[0])]
+                    step_actions = [agent.step(timesteps[0], storage)]
                     if timesteps[0].last():
                         break
                     timesteps = env.step(step_actions)
