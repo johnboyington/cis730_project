@@ -28,7 +28,8 @@ def inspect_observation(filename):
     for i in range(sizex):
         for j in range(sizey):
             x = i*px
-            y = j*px
+            y = j*py
+            print(hp[x:x+px,y:y+py])
             img[i, j] = np.max(hp[x:x+px,y:y+py])
     
     plt.figure(1)
