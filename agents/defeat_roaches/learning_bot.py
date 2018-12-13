@@ -15,8 +15,8 @@ class TerranAgent(base_agent.BaseAgent):
     def setup_model(self):
         """Build ANN."""
         self.model = tf.keras.Sequential()
-        self.model.add(layers.Dense(512, activation='relu'))
-        self.model.add(layers.Dense(121*101, activation='softmax'))
+        self.model.add(layers.Dense(32, activation='relu'))
+        self.model.add(layers.Dense(750, activation='relu'))
         self.model.compile(optimizer=tf.train.AdamOptimizer(0.001), loss='categorical_crossentropy', metrics=['accuracy'])
         return
 
@@ -25,11 +25,12 @@ class TerranAgent(base_agent.BaseAgent):
 
         # load the data and begin preprocessing
         storage = np.load(filename)
+        np.random.shuffle(storage)
         storage = abs(storage)
 
         # split into observation data and the action that was taken
-        data = storage[:, :-2]
-        data = data / np.max(data)
+        data = storage[:, :-1]
+        data[:, :961] = data[:, :961] / np.max(data[:, :961])
         labels = storage[:, -1]
         labels = labels
 
@@ -41,18 +42,43 @@ class TerranAgent(base_agent.BaseAgent):
         data, labels = self.process_data('data.npy')
 
         # fit the data to the model
-        self.model.fit(data, labels, epochs=5, batch_size=32)
+        self.model.fit(data, labels, epochs=3, batch_size=64)
 
     def predict_action(self, obs):
         """Returns an action number given an observation."""
         row = []
         fs = obs.observation.feature_screen
 
-        for screen in [fs.unit_hit_points, fs.unit_type]:
-            row += list(screen.flatten())
-
+        for map_type, screen in [('hp', fs.unit_hit_points), ('pid' ,fs.unit_type)]:
+                screen = np.array(screen)
+                # represent data as 31x31
+                sizex = 31
+                sizey = 31
+                px = int(screen.shape[0] / sizex)
+                py = int(screen.shape[1] / sizey)
+                
+                img = np.empty((sizex, sizey))
+                
+                # loop over data
+                for i in range(sizex):
+                    for j in range(sizey):
+                        x = i*px
+                        y = j*py
+                        if map_type == 'hp':
+                            img[i, j] = np.average(screen[x:x+px,y:y+py])
+                        elif map_type == 'pid':
+                            val = np.max(screen[x:x+px,y:y+py])
+                            if val == 110:
+                                val = 1
+                            else:
+                                val = 0
+                            img[i, j] = val
+                row += list(img.flatten())
+        
         data = np.array(row).reshape(-1, len(row))
-        return int(np.argmax(self.model.predict(data)))
+        data[:, :961] = data[:, :961] / np.max(data[:, :961])
+        action = int(np.argmax(self.model.predict(data)))
+        return action
 
     def can_do(self, obs, action):
         """Checks if an action is in the list of available actions."""

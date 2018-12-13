@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 def take_snapshot(obs):
     """A utility that grabs and stores an observation."""
     fs = obs.observation.feature_screen
-    hp = fs.unit_hit_points
-    np.save('snapshot.npy', hp)
+    pid = fs.player_id
+    np.save('snapshot.npy', pid)
     return
 
 def inspect_observation(filename):
@@ -29,11 +29,13 @@ def inspect_observation(filename):
         for j in range(sizey):
             x = i*px
             y = j*py
-            print(hp[x:x+px,y:y+py])
-            img[i, j] = np.max(hp[x:x+px,y:y+py])
+            val = np.max(hp[x:x+px,y:y+py])
+            img[i, j] = val
     
     plt.figure(1)
     plt.imshow(img)
+    plt.colorbar()
+    print(set(img.flatten()))
     
 
 

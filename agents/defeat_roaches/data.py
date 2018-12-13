@@ -29,9 +29,8 @@ class Data_Container(object):
             row = []
             fs = timestep.observation.feature_screen
 
-            for screen in [fs.unit_hit_points, fs.unit_type]:
+            for map_type, screen in [('hp', fs.unit_hit_points), ('pid' ,fs.unit_type)]:
                 screen = np.array(screen)
-                print(screen.shape)
                 # represent data as 31x31
                 sizex = 31
                 sizey = 31
@@ -45,16 +44,28 @@ class Data_Container(object):
                     for j in range(sizey):
                         x = i*px
                         y = j*py
-                        img[i, j] = np.max(screen[x:x+px,y:y+py])
-                row += list(screen.flatten())
+                        if map_type == 'hp':
+                            img[i, j] = np.average(screen[x:x+px,y:y+py])
+                        elif map_type == 'pid':
+                            val = np.max(screen[x:x+px,y:y+py])
+                            if val == 110:
+                                val = 1
+                            else:
+                                val = 0
+                            img[i, j] = val
+                row += list(img.flatten())
 
             row.append(action)
             self.data.append(np.array(row))
-            self.save_data()
             return
 
     def save_data(self):
         """A utility to store the data in a human readable numpy array."""
-        savedata = np.array(self.data)
+        try:
+            data = np.load('data.npy')
+            savedata = np.array(self.data)
+            savedata = np.concatenate([data, savedata])
+        except:
+            savedata = np.array(self.data)
         np.save(self.savename, savedata)
         return
