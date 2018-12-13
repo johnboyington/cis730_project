@@ -1,8 +1,9 @@
 from pysc2.env import sc2_env
 from pysc2.lib import features
 from absl import app
-from learning_bot import TerranAgent
+from scripted_bot import TerranAgent
 from data import Data_Container
+from study_observation import take_snapshot
 
 
 def main(unused_argv):
@@ -18,6 +19,8 @@ def main(unused_argv):
             visualize=True) as env:
                 agent.setup(env.observation_spec(), env.action_spec())
                 timesteps = env.reset()
+                take_snapshot(timesteps[0])
+                raise AssertionError
                 agent.reset()
                 while True:
                     step_actions = [agent.step(timesteps[0], storage)]
