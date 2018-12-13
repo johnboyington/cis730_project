@@ -20,7 +20,6 @@ class Data_Container(object):
             for screen in [fs.unit_hit_points, fs.unit_type]:
                 row += list(screen.flatten())
 
-            row.append(timestep.reward)
             row.append(action)
             self.data.append(np.array(row))
             self.save_data()
