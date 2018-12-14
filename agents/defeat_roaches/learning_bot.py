@@ -15,7 +15,6 @@ class TerranAgent(base_agent.BaseAgent):
     def setup_model(self):
         """Build ANN."""
         self.model = tf.keras.Sequential()
-        self.model.add(layers.Dense(32, activation='relu'))
         self.model.add(layers.Dense(750, activation='relu'))
         self.model.compile(optimizer=tf.train.AdamOptimizer(0.001), loss='categorical_crossentropy', metrics=['accuracy'])
         return

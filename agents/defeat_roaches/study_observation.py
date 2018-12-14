@@ -34,7 +34,6 @@ def inspect_observation(filename):
     
     plt.figure(1)
     plt.imshow(img)
-    plt.colorbar()
     print(set(img.flatten()))
     
 

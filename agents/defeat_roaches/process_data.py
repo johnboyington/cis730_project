@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from transform_action import transform_action
 
 data = np.load('data.npy')
+print('length', len(data))
 maps = data[:, :-1]
 labels = data[:, -1]
 

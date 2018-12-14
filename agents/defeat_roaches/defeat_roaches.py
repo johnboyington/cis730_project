@@ -12,8 +12,8 @@ def main(unused_argv):
     if sys.argv[1] == 'log':
         agent = Logger()
         storage = Data_Container(method='compress')
-        visual = False
-        num_runs = 10
+        visual = True
+        num_runs = 1
     elif sys.argv[1] == 'learn':
         agent = Learner()
         storage = None
