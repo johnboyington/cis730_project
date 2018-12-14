@@ -89,20 +89,42 @@ John Boyington
 
 
 
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                                           Objectives  & Problem Statement
+%                                                                                            Objectives & Problem Statement
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \textbf{Objectives \& Problem Statement}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Starcraft is a popular rts video game.
+As a standalone game, it has many features that make it interesting like how you can control micro and macro strategies.
+As a topic for artificial intelligence, it's great because of its complexity.
+The possible observations and actions that can be taken are big.
+On top of that, multiple levels of abstraction and necessary planning makes it hard for computers.
+It is considered an open problem in ai.
 
+The selected project for this topic was game playing agent.
+My project was to write a neural network to mimic the behavior of a scripted bot in starcraft 2.
+The hope was ultimately to study techniques for mimicking behavior.
+This, in combination with replay data from pro players might allow a bot to study their skills and learn them.
 
+Before starting the task there were a number of competencies I needed to develop before being able to actually write the bot.
+First, I had to familiarize myself with the starcraft api.
+It gives you access to timestep observation data and all the available actions in easy to implement code format.
+This makes for intuitive developing ai that may reason/behave like human players.
+Tensorflow was something else that I had to learn.
+It's implementation allowed for the relatively simple creation and training of neural networks using keras.
+A training example was done by me and is detailed in the appendix of this report.
 
+I looked for several different bots that I could use for my scripted bot.
+Ultimately, I decided to go with writing one myself.
+Studying and selecting which observation values would be useful in training was also important.
+
+Finally, I needed to study the selection of parameters of a network and what effect it may have on output.
+Then, of course run the experiment.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -110,10 +132,19 @@ John Boyington
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                                                Background \& Related Work
+%                                                                                                 Background & Related Work
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \textbf{Background \& Related Work}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+There was a paper published on pysc2's api.
+In it it described a lot of things which will go here.
+
+There have already been many attempts to solve both micro and macroscale problems in this field.
+They'll be detailed here.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -133,6 +164,19 @@ John Boyington
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+The structure of the code will be considered within this section, as well as any techniques applied at various levels of implementation.
+The highest level script it {\tt defeat\_roaches.py}.
+It can be invoked with a command line arg, either {\tt learn} or {\tt log}.
+This will select the whether you want the scripted bot, or the neural network to play the game.
+Each agent is subclassed from a pysc2agent class type and then the action used at each timestep is produced using the {\tt step} method.
+At the highest level, you can choose things like the ammount of ingame steps before an action execution, where mine is set to 1.
+It's at this level, too that a {\tt Data\_Container} object is created and passed to agents.
+This handles the access, logging, and handling of data produced by scripty and used by neural boi.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
