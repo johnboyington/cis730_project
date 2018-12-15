@@ -97,32 +97,26 @@ John Boyington
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Starcraft is a popular rts video game.
-As a standalone game, it has many features that make it interesting like how you can control micro and macro strategies.
-As a topic for artificial intelligence, it's great because of its complexity.
-The possible observations and actions that can be taken are big.
-On top of that, multiple levels of abstraction and necessary planning makes it hard for computers.
-It is considered an open problem in ai.
+StarCraft II is a popular competetive real-time strategy game.
+To play successfully, players have to manage the game on both the micro-level with combat and structure placement and also at the macro-level making long-term strategic descisions.
+The game is partially-observable, so exploration is required, several actions are available to the player at any given moment, things like movement and attacking happen in a continuous space and there are countless strategies used successfully.
+For artificial intelligence, this game provides an excellent opportunity for research.
+Recently, this game has been presented as a grand challenge in AI by DeepMind and Blizzard.
 
-The selected project for this topic was game playing agent.
-My project was to write a neural network to mimic the behavior of a scripted bot in starcraft 2.
-The hope was ultimately to study techniques for mimicking behavior.
-This, in combination with replay data from pro players might allow a bot to study their skills and learn them.
+For the class project, the topic chosen was to develop a game-playing agent to master some component of this game.
+More specificly, the plan was to develop a neural network to mimic the behavior of some scripted bot in the minigame `DefeatRoaches' in StarCraft II.
+The hope is that through this research, more information might be gained on the process of learning through observing the action of others.
+Large ammounts of replay data is available currently, including much from high-level players.
+This data, in conjunction with these learned techniques may hold the key to teaching a machine to master the game.
 
-Before starting the task there were a number of competencies I needed to develop before being able to actually write the bot.
-First, I had to familiarize myself with the starcraft api.
-It gives you access to timestep observation data and all the available actions in easy to implement code format.
-This makes for intuitive developing ai that may reason/behave like human players.
-Tensorflow was something else that I had to learn.
+Before starting the task there were a number of competencies I needed to develop before being able to actually the bot.
+First, I would need to learn to use the StarCraft api that Blizzard and DeepMind had produced.
+This python-based interface gives access to large ammounts of in-game information, like state variables and available actions, all provided in easy-to-use {\tt numpy} arrays.
+This format is designed specifically with AI development in mind, and presents observation data and actions in ways that mimick human-like interpretation.
+
+Learning Tensorflow was also necessary for the creation of the agent's neural network.
 It's implementation allowed for the relatively simple creation and training of neural networks using keras.
-A training example was done by me and is detailed in the appendix of this report.
-
-I looked for several different bots that I could use for my scripted bot.
-Ultimately, I decided to go with writing one myself.
-Studying and selecting which observation values would be useful in training was also important.
-
-Finally, I needed to study the selection of parameters of a network and what effect it may have on output.
-Then, of course run the experiment.
+Included in the appendix of this report is an example demonstrating the functionality of keras.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
