@@ -227,7 +227,24 @@ Both the training bot and learning bot were allowed to play 5 games each and the
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Table [TABLE GOES HERE] shows the results from both of the bots.
+% results table
+\begin{table}[]
+\caption{Comparison of the scores earned by both the scripted bot and the neural network in five games.}
+\label{tab:scores}
+\begin{tabular}{|l|l|l|}
+\hline
+Game & Scripted Bot & ANN  \\ \hline
+1    & 126          & -8   \\ \hline
+2    & 57           & 0    \\ \hline
+3    & 117          & 2    \\ \hline
+4    & 292          & 0    \\ \hline
+5    & 210          & -8   \\ \hline
+Avg. & 160.4        & -2.8 \\ \hline
+\end{tabular}
+\end{table}
+
+
+Table \ref{tab:scores} shows the results from both of the bots.
 The scripted bot demonstrated good performance, receiving an average score of [AVERAGE SCORE] and a maximum score of 292.
 For the learning bot, however, it had an average score of [AVERAGE SCORE] and only a maximum score of 2.
 The average accuracy for the learning bot was [AVG ACCURACY].
@@ -275,6 +292,17 @@ Future work will happen.
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                                                                References
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{References}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -291,22 +319,18 @@ I followed the training on the tensorflow website.
 Those instructions will go here.
 
 
-I will put all my pictures here.
+\begin{figure}[h!]
+    \includegraphics[width=1.0\linewidth]{fine}
+    \caption{An image representing the {\tt player\_id} feature screen.}
+\end{figure}
+
+\begin{figure}[h!]
+    \includegraphics[width=1.0\linewidth]{course}
+    \caption{An image representing the {\tt player\_id} feature screen, after have underwent the image compression techniques described above.}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                                                                References
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{References}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
