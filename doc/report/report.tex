@@ -93,7 +93,7 @@ John Boyington
 %                                                                                            Objectives & Problem Statement
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\textbf{Objectives \& Problem Statement}
+\section{Objectives \& Problem Statement}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -135,7 +135,7 @@ Then, of course run the experiment.
 %                                                                                                 Background & Related Work
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\textbf{Background \& Related Work}
+\section{Background \& Related Work}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -160,7 +160,7 @@ They'll be detailed here.
 %                                                                                                               Methodology
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\textbf{Methodology}
+\section{Methodology}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -173,7 +173,41 @@ At the highest level, you can choose things like the ammount of ingame steps bef
 It's at this level, too that a {\tt Data\_Container} object is created and passed to agents.
 This handles the access, logging, and handling of data produced by scripty and used by neural boi.
 
+For this particular problem, the observation data used was twofold.
+Because of the nature of the training bot, I needed access to two different value maps.
+The first, was the unit id to distinguish who owned which units.
+The second was the unit health so I could target the unit with lowest health.
+This data went through a series of transformations.
+First, all values were scaled to between 0 and 1.
+Because for attacking we didn't need position of friendly units, so all values associated with friendlies were reduced to 0.
+Due to size restraints then, the data was compressed from 124x124 to 31x31.
 
+The action space was formulated as a series of classes.
+Due to the continuous space we were in, the action space was discretized so there were 30x25 attack locations.
+These (x, y) pairs were flattened and then enumerated.
+Each ``action id'' became a separate class the the network would attempt to train.
+
+The {\tt data.py} file in the repo contains the {\tt Data\_Container} object.
+This object accepts a {\tt timestep} as given by the api and then grabs the obs info needed.
+It also accepts as an arguement an {\tt action\_id} which logs the action taken by the scripted bot.
+This data is then stored in a numpy array and saved to a file after a single game is finished.
+
+The scripted bot was designed with two things in mind.
+The first is simplicity, as it will be easier to see if the learning bot is properly mimicking its actions.
+The second, is that it was designed in a way to exhibit a series of micro behaviors.
+The algorithm targets the enemy with lowest health.
+Ties are broken with y position.
+This will focus down enemies that are the weakest to quickly remove their damage source.
+The tiebreaker encourages the bot to flank the enemy units, a behavior that would be present in the learner if learned right.
+
+After logging the data, it is given to the learning bot.
+This bot will process the data and try to memorize the actions associated with each observation with its neural network.
+Because the network will output a class {\tt action\_id}, it simply needs retransformed into 2D (x, y) values and then the agent will attack there.
+The network has no hidden layers, just a length 1922 input and the 750 output nodes with relu activation.
+
+For the experiment, there was a total of 51433 of traning data arrays.
+The data was shuffled before being given to the network and then trained with a batch size of 64 and 3 epochs.
+Both the training bot and learning bot were allowed to play 5 games each and the scores of each were recorded.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -189,12 +223,19 @@ This handles the access, logging, and handling of data produced by scripty and u
 %                                                                                                                   Results
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\textbf{Results}
+\section{Results}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Table [TABLE GOES HERE] shows the results from both of the bots.
+The scripted bot demonstrated good performance, receiving an average score of [AVERAGE SCORE] and a maximum score of 292.
+For the learning bot, however, it had an average score of [AVERAGE SCORE] and only a maximum score of 2.
+The average accuracy for the learning bot was [AVG ACCURACY].
+Qualitatively, when the accuracy was on the order of 1e-3, the agent would more confidently select an inaccurate point on the screen, cluster around that point and eliminate friendly units.
+When the accuracy was closer to 1e-5, the agents actions seemed entirely stochastic.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -205,7 +246,26 @@ This handles the access, logging, and handling of data produced by scripty and u
 %                                                                                                                   Summary
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\textbf{Summary}
+\section{Summary}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Clearly, the learning agent was not successful.
+There were a number of hinderences that caused this.
+First, to classify that number of classes, the dataset was too small.
+Not only, that, but there was a large number of actions that were never taken by the scripted agent and therefore no data at all to train those.
+Also, the action space enumeration orthogonalized the actions, meaning that it sacrificed its 2d nature.
+Even though two attack target squares may be right next to eachother, they need separate data to train.
+Ideally, there would be some correlation between nearby attack targets that would allow for easier training.
+
+In future work, using attack policies may be better.
+This would drastically reduce the number of classes needed to train.
+It would change the nature  of the problem, but ultimately be more useful.
+Also reinforcement techniques may be better suited for this problem.
+
+Ultimately, the problem still remains unsolved but strides were made.
+The challenges provided by large datasizes seemed to be properly addressed by the image compression.
+Future work will happen.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -221,12 +281,19 @@ This handles the access, logging, and handling of data produced by scripty and u
 %                                                                                                                  Appendix
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\textbf{Appendix}
+\section{Appendix}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Here's an example of me learning tensorflow.
+It can be found in the repository.
+I followed the training on the tensorflow website.
+Those instructions will go here.
 
 
+I will put all my pictures here.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -237,7 +304,7 @@ This handles the access, logging, and handling of data produced by scripty and u
 %                                                                                                                References
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\textbf{References}
+\section{References}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
