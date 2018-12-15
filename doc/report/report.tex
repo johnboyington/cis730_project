@@ -133,13 +133,13 @@ Included in the appendix of this report is an example demonstrating the function
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-It was in August 2017 that the paper introducing SC2LE (StarCraft II Learning Environment) was published and since then several papers have been published detailing methods used to approach the game.
+It was in August 2017 that the paper introducing SC2LE (StarCraft II Learning Environment) was published and since then several papers have been published detailing methods used to approach the game \cite{vinyals2017starcraft}.
 Within the paper itself was several baseline results published from the application of standard reinforcement learning (RL) algorithms.
-Micro behaviors were considered by Liu et. al. who used a influence maps and potential fields to teach an agent various combat techniques. (cite)
-Makar et. al. studied hierarchical multi-agent RL which broke down and decentralized learning tasks handled by separate agents.
+Micro behaviors were considered by Liu et. al. who used a influence maps and potential fields to teach an agent various combat techniques \cite{liu2016evolving}.
+Makar et. al. studied hierarchical multi-agent RL which broke down and decentralized learning tasks handled by separate agents \cite{makar2001hierarchical}.
 
 Outside of AI, StarCraft II bot development has been happening for a long time now.
-A paper by Onta\~n\`on et. al. compares the performance and architecture of the most competetive of these bots.
+A paper by Onta\~n\`on et. al. compares the performance and architecture of the most competetive of these bots \cite{ontanon2013survey}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -162,49 +162,62 @@ A paper by Onta\~n\`on et. al. compares the performance and architecture of the 
 
 The structure of the code will be considered within this section, as well as any techniques applied at various levels of implementation.
 The highest level script it {\tt defeat\_roaches.py}.
-It can be invoked with a command line arg, either {\tt learn} or {\tt log}.
+It can be invoked with an command line arg, either {\tt learn} or {\tt log}.
 This will select the whether you want the scripted bot, or the neural network to play the game.
-Each agent is subclassed from a pysc2agent class type and then the action used at each timestep is produced using the {\tt step} method.
-At the highest level, you can choose things like the ammount of ingame steps before an action execution, where mine is set to 1.
-It's at this level, too that a {\tt Data\_Container} object is created and passed to agents.
-This handles the access, logging, and handling of data produced by scripty and used by neural boi.
+Each agent is subclassed from a pysc2 built-in {\tt BaseAgent} class type and then the action used at each timestep is produced using the {\tt step} method of the agent.
+At the highest level, you can choose things like the ammount of in-game steps before an action execution.
+This can allow for an agent to be handicapped to play at the action-per-minute (APM) of a human player.
+For this experiment, this parameter was set to 1, meaning that the agent acted after every frame.
+It's at this level, too, that a {\tt Data\_Container} object is created and passed to agents.
+This handles the access, logging, and handling of data produced by the scripted bot and used in the neural network.
 
 For this particular problem, the observation data used was twofold.
-Because of the nature of the training bot, I needed access to two different value maps.
+Because of the nature of the training bot, access was needed to two different features from the observation.
 The first, was the unit id to distinguish who owned which units.
-The second was the unit health so I could target the unit with lowest health.
-This data went through a series of transformations.
+The second was the unit health so the bot could target the unit with lowest health.
+Before storage, however, this data was first put through a series of processing steps.
 First, all values were scaled to between 0 and 1.
-Because for attacking we didn't need position of friendly units, so all values associated with friendlies were reduced to 0.
-Due to size restraints then, the data was compressed from 124x124 to 31x31.
+This is standard for neural net training and allows the network to more quickly fit functions to the data.
+It was reasoned that, for an attack-only agent, the position of friendly units was irrelevent.
+Therefore, all feature screen values associated with friendly units was set to zero, so only enemy units were visible.
+Due to the ammount of data that was to be stored, image compression techniques were explored.
+The intent was to reduce the ammount of space required to store the observation, while still maintaining the spatial features of the image.
+It was found, via qualitative judgement, that compression from size 124x124 (the feature screen size) to 31x31 still allowed spatial features to be recognized within the image, but granted a reduction in size of a factor of 16.
+An example of this image compression can be seen in the appendix.
 
-The action space was formulated as a series of classes.
-Due to the continuous space we were in, the action space was discretized so there were 30x25 attack locations.
+The formulation of the action space was also considered.
+Due to the continuous nature of the attack locations, the attack space was discretized so there were 30x25 potential locations, equally spaced apart.
 These (x, y) pairs were flattened and then enumerated.
 Each ``action id'' became a separate class the the network would attempt to train.
 
 The {\tt data.py} file in the repo contains the {\tt Data\_Container} object.
-This object accepts a {\tt timestep} as given by the api and then grabs the obs info needed.
-It also accepts as an arguement an {\tt action\_id} which logs the action taken by the scripted bot.
-This data is then stored in a numpy array and saved to a file after a single game is finished.
+This object accepts a {\tt timestep} as given by the api and then grabs the observation info needed.
+It also accepts as an argument an {\tt action\_id} which logs the action taken by the scripted bot.
+This data is then stored in a numpy array and saved to a file after each individual game is finished.
 
-The scripted bot was designed with two things in mind.
+Two design philosophies governed the creation of the scripted agent.
 The first is simplicity, as it will be easier to see if the learning bot is properly mimicking its actions.
-The second, is that it was designed in a way to exhibit a series of micro behaviors.
-The algorithm targets the enemy with lowest health.
-Ties are broken with y position.
-This will focus down enemies that are the weakest to quickly remove their damage source.
-The tiebreaker encourages the bot to flank the enemy units, a behavior that would be present in the learner if learned right.
+The second is that it was designed in a way to exhibit unique and strategically useful micro behaviors.
+The algorithm only takes one action, attacking, and always targets the enemy with lowest health.
+Ties are broken with y-position.
+This will focus down enemies that are the weakest to quickly remove them as a damage source.
+The tiebreaker encourages the bot to flank the enemy units, a behavior that would be present and observable in the learning agent if correctly learned right.
 
-After logging the data, it is given to the learning bot.
+After the scripted bot is used to generate data, the data is fed into the neural network.
 This bot will process the data and try to memorize the actions associated with each observation with its neural network.
-Because the network will output a class {\tt action\_id}, it simply needs retransformed into 2D (x, y) values and then the agent will attack there.
+Because the network will output a class {\tt action\_id}, it simply needs retransformed into 2D (x, y) values and then the agent will attack that location.
 The network has no hidden layers, just a length 1922 input and the 750 output nodes with relu activation.
+The input dimention is a result of flattening the two 31x31 feature screens and the output dimension matches the number of potential actions available.
 
-For the experiment, there was a total of 51433 of traning data arrays.
+The game played was a minigame called `DefeatRoaches'.
+The initial state of the game includes nine marines and four roaches, placed in random locations in a vertical formation on opposite sides of the screen.
+The reward for defeating a roach is +10 and it's -1 for each marine defeated.
+The end condition is 120 seconds or whenever all of the marines are defeated.
+The fog of war in this minigame is relaxed and the camera is fixed, simplifying the tasks the agent needs to handle.
+
+For the experiment, there was a total of 51433 traning data arrays.
 The data was shuffled before being given to the network and then trained with a batch size of 64 and 3 epochs.
 Both the training bot and learning bot were allowed to play 5 games each and the scores of each were recorded.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -241,11 +254,12 @@ Avg. & 160.4        & -2.8 \\ \hline
 
 
 Table \ref{tab:scores} shows the results from both of the bots.
-The scripted bot demonstrated good performance, receiving an average score of [AVERAGE SCORE] and a maximum score of 292.
-For the learning bot, however, it had an average score of [AVERAGE SCORE] and only a maximum score of 2.
-The average accuracy for the learning bot was [AVG ACCURACY].
-Qualitatively, when the accuracy was on the order of 1e-3, the agent would more confidently select an inaccurate point on the screen, cluster around that point and eliminate friendly units.
-When the accuracy was closer to 1e-5, the agents actions seemed entirely stochastic.
+The scripted bot demonstrated good performance, receiving an average score of 160.4 and a maximum score of 292.
+For the learning bot, however, it had an average score of -2.8 and only a maximum score of 2.
+The average accuracy for the learning bot was $1.2166 \times 10^{-3}$.
+Qualitatively speaking, when the training accuracy was on the order of $1 \times 10^{-3}$, the agent would more confidently select an inaccurate point on the screen, cluster around that point and eliminate friendly units.
+Another common behavior was becoming stuck looping back and forth through two points on either side of the friendly units.
+When the accuracy was closer to $1 \times 10^{-3}$, the agents actions seemed entirely stochastic.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -263,22 +277,23 @@ When the accuracy was closer to 1e-5, the agents actions seemed entirely stochas
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Clearly, the learning agent was not successful.
+Clearly, the learning agent was not successful in this endeavor.
 There were a number of hinderences that caused this.
-First, to classify that number of classes, the dataset was too small.
+First, to classify that number of classes, the dataset was far too small.
+The example in the appendix demonstrates successful classification of 10 classes using a dataset of 60,000 28x28 images, roughly the half the data used in this project.
 Not only, that, but there was a large number of actions that were never taken by the scripted agent and therefore no data at all to train those.
 Also, the action space enumeration orthogonalized the actions, meaning that it sacrificed its 2d nature.
 Even though two attack target squares may be right next to eachother, they need separate data to train.
 Ideally, there would be some correlation between nearby attack targets that would allow for easier training.
 
 In future work, using attack policies may be better.
+Specifically, scripted routines that would govern the different tactics that the agent could select between.
 This would drastically reduce the number of classes needed to train.
-It would change the nature  of the problem, but ultimately be more useful.
-Also reinforcement techniques may be better suited for this problem.
+Because this is an imitation exercise, the actions of the bot-to-be-imitated would need to be formulated in a way that matched the existing policies, but be different enough, that learning to imitate could still be a meaningful exercise.
+There is also plenty of opportunity for RL techniques to be applied to this problem.
 
-Ultimately, the problem still remains unsolved but strides were made.
-The challenges provided by large datasizes seemed to be properly addressed by the image compression.
-Future work will happen.
+Ultimately, the problem of imitation here still remains largely unsolved.
+Hopefully the application of some of these techniques described here will lead to partial solutions of this problem.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -292,12 +307,12 @@ Future work will happen.
 %                                                                                                                References
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{References}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
+\bibliographystyle{aaai}
+\bibliography{references}
 
 
 
@@ -309,10 +324,9 @@ Future work will happen.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Here's an example of me learning tensorflow.
-It can be found in the repository.
-I followed the training on the tensorflow website.
-Those instructions will go here.
+The Tensorflow website includes a basic classification example using the Fashion MNIST dataset.
+It involves the creation of a neural network used to classify images based on which type of clothing it represents.
+My example can be found in my project repository under {\tt agents/mnist/}.
 
 
 \begin{figure}[h!]
